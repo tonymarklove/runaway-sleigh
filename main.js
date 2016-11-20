@@ -33,12 +33,13 @@ var mainExports = (function() {
 
   var player = null;
   var cursors = null;
+  var spaceKey = null;
   var present = null;
 
   var santa = null;
 
   var emitter = null;
-
+  var presentEmitter = null;
 
   function preload() {
     gameState.phaser.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
@@ -138,11 +139,16 @@ var mainExports = (function() {
     emitter = gameState.phaser.add.emitter(gameState.phaser.world.centerX, gameState.phaser.world.centerY, 400);
     emitter.makeParticles(['star_particle1', 'star_particle2']);
 
-    emitter.gravity = 200;
+    emitter.gravity = 0;
     emitter.setAlpha(1, 0, 3000);
     emitter.setScale(0.8, 0, 0.8, 0, 3000);
-
     emitter.start(false, 3000, 5);
+
+    presentEmitter = gameState.phaser.add.emitter(gameState.phaser.world.centerX, gameState.phaser.world.centerY, 400);
+    presentEmitter.makeParticles(['present']);
+
+    presentEmitter.gravity = 200;
+    presentEmitter.setScale(4, 0, 4, 0, 3000);
 
     gameState.phaser.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -165,12 +171,25 @@ var mainExports = (function() {
     createDeliveredUi();
 
     cursors = gameState.phaser.input.keyboard.createCursorKeys();
+    spaceKey = gameState.phaser.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
     gameState.phaser.camera.follow(player);
   }
 
   function padLeft(nr, n, str){
     return Array(n-String(nr).length+1).join(str||'0')+nr;
+  }
+
+  function houseWasHit() {
+    for (var i=0; i<gameState.houses.length; i++) {
+      var house = gameState.houses[i];
+
+      if (!house.delivered && house.sprite.world.distance(player, true) < 100) {
+        return house;
+      }
+    }
+
+    return false;
   }
 
   function update() {
@@ -196,8 +215,21 @@ var mainExports = (function() {
       present.y = -35;
     }
 
+    if (spaceKey.downDuration(10)) {
+      presentEmitter.explode(1000, 1);
+      var house = houseWasHit();
+      if (house) {
+        gameState.player.delivered += 1;
+        house.delivered = true;
+        house.sprite.tint = 0x80ff80;
+      }
+    }
+
     emitter.emitX = player.x;
     emitter.emitY = player.y;
+
+    presentEmitter.emitX = player.x;
+    presentEmitter.emitY = player.y;
 
     var elapsedSeconds = Math.floor(gameState.elaspedMs / 1000);
     var displayedMinutes = Math.floor(elapsedSeconds / 60);
