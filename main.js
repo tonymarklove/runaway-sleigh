@@ -23,12 +23,15 @@ var mainExports = (function() {
     phaser: null,
     background: null,
     houses: [],
+    turnSounds: [],
     elaspedMs: 0,
     timerText: null,
     deliveredText: null,
     player: {
-      delivered: 0
-    }
+      delivered: 0,
+      deliveredInARow: 0
+    },
+    inFlightPresents: []
   };
 
   var player = null;
@@ -54,6 +57,10 @@ var mainExports = (function() {
 
     gameState.phaser.load.image('star_particle1','assets/star.png');
     gameState.phaser.load.image('star_particle2','assets/star_particle.png');
+
+    gameState.phaser.load.audio('jingle_bells', ['assets/jingle-bells.mp3']);
+    gameState.phaser.load.audio('turn1', ['assets/turn1.ogg']);
+    gameState.phaser.load.audio('turn2', ['assets/turn2.ogg']);
   }
 
   function createTimer() {
@@ -94,7 +101,7 @@ var mainExports = (function() {
     text.font = 'Fontdiner Swanky';
     text.fontSize = 50;
     text.fixedToCamera = true;
-    text.cameraOffset.setTo(SCREEN_WIDTH - 40, 50);
+    text.cameraOffset.setTo(SCREEN_WIDTH - 100, 50);
 
     //  If we don't set the padding the font gets cut off
     //  Comment out the line below to see the effect
@@ -112,7 +119,7 @@ var mainExports = (function() {
     var clock = gameState.phaser.add.sprite(0,0, 'present');
     clock.anchor.setTo(0.5);
     clock.fixedToCamera = true;
-    clock.cameraOffset.setTo(SCREEN_WIDTH - 100, 45);
+    clock.cameraOffset.setTo(SCREEN_WIDTH - 230, 45);
     clock.scale.setTo(1.5);
 
     gameState.deliveredText = text;
@@ -132,6 +139,50 @@ var mainExports = (function() {
     }
   }
 
+  function createInFlightPresent(currentPos, velocity) {
+    var present = {};
+
+    var time = 300;
+    var throwSpeed = 100;
+
+    var presentVelocity = Phaser.Point.normalize(velocity);
+    presentVelocity.multiply(throwSpeed, throwSpeed);
+    presentVelocity.add(velocity.x, velocity.y);
+    presentVelocity.multiply(time / 1000, time / 1000);
+
+    var targetPoint = Phaser.Point.add(currentPos, presentVelocity);
+    var targetAngle = gameState.phaser.rnd.angle();
+    var hitHouse = houseWasHit(targetPoint);
+
+    if (hitHouse) {
+      var chimney = chimneyForHouse(hitHouse);
+      targetPoint = chimney.position;
+      targetAngle = chimney.angle;
+    }
+
+    present.sprite = gameState.phaser.add.sprite(currentPos.x, currentPos.y, 'present');
+    present.sprite.anchor.setTo(0.5, 0.5);
+
+    gameState.phaser.add.tween(present.sprite).to({ x: targetPoint.x, y: targetPoint.y, angle: targetAngle }, time, Phaser.Easing.Linear.None, true, 0);
+
+    var scale1 = gameState.phaser.add.tween(present.sprite.scale).to({x: 1.8, y: 1.8}, time * 0.3, Phaser.Easing.Linear.None)
+    var scale2 = gameState.phaser.add.tween(present.sprite.scale).to({x: 0.8, y: 0.8}, time * 0.7, Phaser.Easing.Linear.None);
+
+    scale1.chain(scale2);
+
+    scale1.start();
+
+    scale2.onComplete.add(function() {
+      presentEmitter.emitX = targetPoint.x;
+      presentEmitter.emitY = targetPoint.y;
+      presentEmitter.start(true, 3000, null, 5);
+    });
+
+    gameState.inFlightPresents.push(present);
+
+    return hitHouse;
+  }
+
   function create() {
     gameState.background = gameState.phaser.add.tileSprite(0, 0, 2781, 4052, 'background');
     gameState.phaser.world.setBounds(0, 0, 2781, 4052);
@@ -146,9 +197,8 @@ var mainExports = (function() {
 
     presentEmitter = gameState.phaser.add.emitter(gameState.phaser.world.centerX, gameState.phaser.world.centerY, 400);
     presentEmitter.makeParticles(['present']);
-
-    presentEmitter.gravity = 200;
-    presentEmitter.setScale(4, 0, 4, 0, 3000);
+    presentEmitter.setAlpha(1, 0, 3000);
+    presentEmitter.setScale(1.5, 0, 0.8, 0, 3000);
 
     gameState.phaser.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -173,6 +223,11 @@ var mainExports = (function() {
     cursors = gameState.phaser.input.keyboard.createCursorKeys();
     spaceKey = gameState.phaser.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
+    music = gameState.phaser.add.audio('jingle_bells', 0.25);
+    gameState.turnSounds.push(gameState.phaser.add.audio('turn1'));
+    gameState.turnSounds.push(gameState.phaser.add.audio('turn2'));
+    music.play();
+
     gameState.phaser.camera.follow(player);
   }
 
@@ -180,11 +235,15 @@ var mainExports = (function() {
     return Array(n-String(nr).length+1).join(str||'0')+nr;
   }
 
-  function houseWasHit() {
+  function randomArrayItem(array) {
+    return array[Math.floor(Math.random()*array.length)];
+  }
+
+  function houseWasHit(position) {
     for (var i=0; i<gameState.houses.length; i++) {
       var house = gameState.houses[i];
 
-      if (!house.delivered && house.sprite.world.distance(player, true) < 100) {
+      if (!house.delivered && house.sprite.world.distance(position, true) < 100) {
         return house;
       }
     }
@@ -192,44 +251,65 @@ var mainExports = (function() {
     return false;
   }
 
+  function chimneyForHouse(house) {
+    var chimneyPoint = new Phaser.Point(29, 78);
+
+    return {
+      position: chimneyPoint.rotate(64, 64, house.sprite.angle, true).subtract(64,64).add(house.sprite.world.x, house.sprite.world.y),
+      angle: house.sprite.angle
+    };
+  }
+
   function update() {
     gameState.elaspedMs += gameState.phaser.time.physicsElapsedMS;
 
     var angle = player.body.rotation;
 
-    var dx = PLAYER_SPEED * Math.cos(angle * Math.PI / 180);
-    var dy = PLAYER_SPEED * Math.sin(angle * Math.PI / 180);
+    var playerSpeed = PLAYER_SPEED + (20 * gameState.player.deliveredInARow);
+    var turnRate = TURN_RATE + (0.1 * gameState.player.deliveredInARow);
+
+    var dx = playerSpeed * Math.cos(angle * Math.PI / 180);
+    var dy = playerSpeed * Math.sin(angle * Math.PI / 180);
 
     player.body.velocity = new Phaser.Point(dx, dy);
 
     if (cursors.left.isDown) {
-      player.body.rotation = player.body.rotation - TURN_RATE;
+      player.body.rotation = player.body.rotation - turnRate;
       santa.scale.y = -1;
       santa.y = 12;
       present.y = 35;
+
+      if (cursors.left.downDuration(10)) {
+        randomArrayItem(gameState.turnSounds).play();
+      }
     }
     else if (cursors.right.isDown) {
-      player.body.rotation = player.body.rotation + TURN_RATE;
+      player.body.rotation = player.body.rotation + turnRate;
       santa.scale.y = 1;
       santa.y = -12;
       present.y = -35;
+
+      if (cursors.right.downDuration(10)) {
+        randomArrayItem(gameState.turnSounds).play();
+      }
     }
 
     if (spaceKey.downDuration(10)) {
-      presentEmitter.explode(1000, 1);
-      var house = houseWasHit();
+      var house = createInFlightPresent(new Phaser.Point(present.world.x, present.world.y), player.body.velocity.clone());
       if (house) {
         gameState.player.delivered += 1;
+        gameState.player.deliveredInARow += 1;
         house.delivered = true;
         house.sprite.tint = 0x80ff80;
+      } else {
+        gameState.player.deliveredInARow = 0;
       }
+
+      console.log(gameState.player.deliveredInARow);
     }
 
     emitter.emitX = player.x;
     emitter.emitY = player.y;
-
-    presentEmitter.emitX = player.x;
-    presentEmitter.emitY = player.y;
 
     var elapsedSeconds = Math.floor(gameState.elaspedMs / 1000);
     var displayedMinutes = Math.floor(elapsedSeconds / 60);
@@ -237,7 +317,7 @@ var mainExports = (function() {
 
     gameState.timerText.text = displayedMinutes + " : " + padLeft(displayedSeconds, 2);
 
-    gameState.deliveredText.text = String(gameState.player.delivered);
+    gameState.deliveredText.text = String(gameState.player.delivered) + " / 30";
   }
 
   function render() {
