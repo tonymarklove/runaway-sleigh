@@ -282,7 +282,7 @@ var mainExports = (function() {
     music = gameState.phaser.add.audio('jingle_bells', 0.25);
     gameState.turnSounds.push(gameState.phaser.add.audio('turn1'));
     gameState.turnSounds.push(gameState.phaser.add.audio('turn2'));
-    // music.play();
+    music.play();
 
     gameState.phaser.camera.roundPx = false;
     gameState.phaser.camera.follow(player);
