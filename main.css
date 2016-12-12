@@ -1,4 +1,18 @@
+body {
+  background-color: #131a20;
+}
+
+h1 {
+  background: url(assets/logo.png) center no-repeat;
+  height: 160px;
+  text-indent: -999em;
+}
+
 #cavnas-target {
   width: 800px;
   margin: 20px auto;
+}
+
+canvas {
+  border: 2px solid #1e2933;
 }

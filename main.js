@@ -16,7 +16,6 @@ var mainExports = (function() {
   var SCREEN_HEIGHT = 600;
   var PLAYER_SPEED = 500; // pixels per frame
   var TURN_RATE = 3; // degrees per frame
-  var HOUSE_COUNT = 30;
 
   // State
   var gameState = {
@@ -28,10 +27,11 @@ var mainExports = (function() {
     timerText: null,
     deliveredText: null,
     player: {
+      turnDirection: 'left',
       delivered: 0,
-      deliveredInARow: 0
-    },
-    inFlightPresents: []
+      deliveredInARow: 0,
+      currentPresentImage: null
+    }
   };
 
   var player = null;
@@ -44,16 +44,53 @@ var mainExports = (function() {
   var emitter = null;
   var presentEmitter = null;
 
+  var chimneyPositions = [
+    {x: 462,  y: 165},
+    {x: 1021, y: 130},
+    {x: 1946, y: 122},
+    {x: 181,  y: 551},
+    {x: 699,  y: 455},
+    {x: 893,  y: 430},
+    {x: 1111, y: 662},
+    {x: 1411, y: 315},
+    {x: 1976, y: 342},
+    {x: 1767, y: 496},
+    {x: 227,  y: 1288},
+    {x: 350,  y: 936},
+    {x: 629,  y: 1088},
+    {x: 1037, y: 1061},
+    {x: 1337, y: 698},
+    {x: 1345, y: 1073},
+    {x: 1703, y: 1180},
+    {x: 1841, y: 773},
+    {x: 1934, y: 835},
+    {x: 178,  y: 1993},
+    {x: 177,  y: 1548},
+    {x: 479,  y: 1437},
+    {x: 793,  y: 2032},
+    {x: 931,  y: 1577},
+    {x: 1096, y: 1453},
+    {x: 1195, y: 1832},
+    {x: 1479, y: 1592},
+    {x: 1439, y: 1937},
+    {x: 1885, y: 1901},
+    {x: 2054, y: 1473}
+  ];
+
   function preload() {
     gameState.phaser.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
 
-    // game.load.image('background','assets/uk.jpg');
-    gameState.phaser.load.image('background','assets/debug-grid-1920x1920.png');
+    gameState.phaser.load.image('background','assets/map-unfound.jpg');
     gameState.phaser.load.image('player','assets/ship.png');
     gameState.phaser.load.image('santa','assets/santa.png');
-    gameState.phaser.load.image('present','assets/present.png');
     gameState.phaser.load.image('house','assets/house.png');
     gameState.phaser.load.image('clock','assets/clock.png');
+
+    gameState.phaser.load.image('present_blue','assets/present-blue.png');
+    gameState.phaser.load.image('present_green','assets/present-green.png');
+    gameState.phaser.load.image('present_purple','assets/present-purple.png');
+    gameState.phaser.load.image('present_red','assets/present-red.png');
+    gameState.phaser.load.image('present_yellow','assets/present-yellow.png');
 
     gameState.phaser.load.image('star_particle1','assets/star.png');
     gameState.phaser.load.image('star_particle2','assets/star_particle.png');
@@ -61,6 +98,18 @@ var mainExports = (function() {
     gameState.phaser.load.audio('jingle_bells', ['assets/jingle-bells.mp3']);
     gameState.phaser.load.audio('turn1', ['assets/turn1.ogg']);
     gameState.phaser.load.audio('turn2', ['assets/turn2.ogg']);
+  }
+
+  function pickPresentColor() {
+    var presents = [
+      'present_blue',
+      'present_green',
+      'present_purple',
+      'present_red',
+      'present_yellow'
+    ];
+
+    return randomArrayItem(presents);
   }
 
   function createTimer() {
@@ -116,7 +165,7 @@ var mainExports = (function() {
     text.strokeThickness = 2;
     text.setShadow(5, 5, 'rgba(0,0,0,0.5)', 5);
 
-    var clock = gameState.phaser.add.sprite(0,0, 'present');
+    var clock = gameState.phaser.add.sprite(0,0, pickPresentColor());
     clock.anchor.setTo(0.5);
     clock.fixedToCamera = true;
     clock.cameraOffset.setTo(SCREEN_WIDTH - 230, 45);
@@ -126,14 +175,11 @@ var mainExports = (function() {
   }
 
   function createHouses() {
-    for (var i=0; i<HOUSE_COUNT; i++) {
-      var house = gameState.phaser.make.sprite(gameState.phaser.world.randomX, gameState.phaser.world.randomY, 'house');
-      house.anchor.setTo(0.5, 0.5);
-      house.scale.setTo(0.5, 0.5);
-      house.angle = gameState.phaser.rnd.angle();
-      gameState.background.addChild(house);
+    for (var i=0; i<chimneyPositions.length; i++) {
+      var chimney = chimneyPositions[i];
+
       gameState.houses.push({
-        sprite: house,
+        chimney:  new Phaser.Point(chimney.x, chimney.y),
         delivered: false
       });
     }
@@ -143,7 +189,7 @@ var mainExports = (function() {
     var present = {};
 
     var time = 300;
-    var throwSpeed = 100;
+    var throwSpeed = 200;
 
     var presentVelocity = Phaser.Point.normalize(velocity);
     presentVelocity.multiply(throwSpeed, throwSpeed);
@@ -160,7 +206,7 @@ var mainExports = (function() {
       targetAngle = chimney.angle;
     }
 
-    present.sprite = gameState.phaser.add.sprite(currentPos.x, currentPos.y, 'present');
+    present.sprite = gameState.phaser.add.sprite(currentPos.x, currentPos.y, gameState.player.currentPresentImage);
     present.sprite.anchor.setTo(0.5, 0.5);
 
     gameState.phaser.add.tween(present.sprite).to({ x: targetPoint.x, y: targetPoint.y, angle: targetAngle }, time, Phaser.Easing.Linear.None, true, 0);
@@ -176,16 +222,26 @@ var mainExports = (function() {
       presentEmitter.emitX = targetPoint.x;
       presentEmitter.emitY = targetPoint.y;
       presentEmitter.start(true, 3000, null, 5);
-    });
 
-    gameState.inFlightPresents.push(present);
+      if (hitHouse) {
+        present.sprite.destroy(present.sprite);
+      }
+    });
 
     return hitHouse;
   }
 
+  function DEBUGcreatePresentsInChimneys() {
+    for (var i=0; i<chimneyPositions.length; i++) {
+      var chimney = chimneyPositions[i];
+      var sprite = gameState.phaser.add.sprite(chimney.x, chimney.y, pickPresentColor());
+      sprite.anchor.setTo(0.5, 0.5);
+    }
+  }
+
   function create() {
-    gameState.background = gameState.phaser.add.tileSprite(0, 0, 2781, 4052, 'background');
-    gameState.phaser.world.setBounds(0, 0, 2781, 4052);
+    gameState.background = gameState.phaser.add.tileSprite(0, 0, 2160, 2160, 'background');
+    gameState.phaser.world.setBounds(0, 0, 2160, 2160);
 
     emitter = gameState.phaser.add.emitter(gameState.phaser.world.centerX, gameState.phaser.world.centerY, 400);
     emitter.makeParticles(['star_particle1', 'star_particle2']);
@@ -196,9 +252,8 @@ var mainExports = (function() {
     emitter.start(false, 3000, 5);
 
     presentEmitter = gameState.phaser.add.emitter(gameState.phaser.world.centerX, gameState.phaser.world.centerY, 400);
-    presentEmitter.makeParticles(['present']);
-    presentEmitter.setAlpha(1, 0, 3000);
-    presentEmitter.setScale(1.5, 0, 0.8, 0, 3000);
+    presentEmitter.makeParticles(['present_blue', 'present_green', 'present_purple', 'present_red', 'present_yellow']);
+    presentEmitter.setAlpha(1, 0, 3000); presentEmitter.setScale(1.5, 0, 0.8, 0, 3000);
 
     gameState.phaser.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -207,7 +262,8 @@ var mainExports = (function() {
     gameState.phaser.physics.arcade.enable(player);
     player.body.collideWorldBounds = true;
 
-    present = gameState.phaser.make.sprite(5,-35, 'present');
+    gameState.player.currentPresentImage = pickPresentColor();
+    present = gameState.phaser.make.sprite(5,-35, gameState.player.currentPresentImage);
     present.anchor.setTo(0.5, 0.5);
     present.angle = -90;
     player.addChild(present);
@@ -226,8 +282,9 @@ var mainExports = (function() {
     music = gameState.phaser.add.audio('jingle_bells', 0.25);
     gameState.turnSounds.push(gameState.phaser.add.audio('turn1'));
     gameState.turnSounds.push(gameState.phaser.add.audio('turn2'));
-    music.play();
+    // music.play();
 
+    gameState.phaser.camera.roundPx = false;
     gameState.phaser.camera.follow(player);
   }
 
@@ -243,7 +300,7 @@ var mainExports = (function() {
     for (var i=0; i<gameState.houses.length; i++) {
       var house = gameState.houses[i];
 
-      if (!house.delivered && house.sprite.world.distance(position, true) < 100) {
+      if (!house.delivered && house.chimney.distance(position, true) < 100) {
         return house;
       }
     }
@@ -255,8 +312,8 @@ var mainExports = (function() {
     var chimneyPoint = new Phaser.Point(29, 78);
 
     return {
-      position: chimneyPoint.rotate(64, 64, house.sprite.angle, true).subtract(64,64).add(house.sprite.world.x, house.sprite.world.y),
-      angle: house.sprite.angle
+      position: house.chimney,
+      angle: gameState.phaser.rnd.angle()
     };
   }
 
@@ -274,24 +331,26 @@ var mainExports = (function() {
     player.body.velocity = new Phaser.Point(dx, dy);
 
     if (cursors.left.isDown) {
+      if (cursors.left.downDuration(10) && gameState.player.turnDirection != "left") {
+        randomArrayItem(gameState.turnSounds).play();
+      }
+
+      gameState.player.turnDirection = "left";
       player.body.rotation = player.body.rotation - turnRate;
       santa.scale.y = -1;
       santa.y = 12;
       present.y = 35;
-
-      if (cursors.left.downDuration(10)) {
-        randomArrayItem(gameState.turnSounds).play();
-      }
     }
     else if (cursors.right.isDown) {
+      if (cursors.right.downDuration(10) && gameState.player.turnDirection != "right") {
+        randomArrayItem(gameState.turnSounds).play();
+      }
+
+      gameState.player.turnDirection = "right";
       player.body.rotation = player.body.rotation + turnRate;
       santa.scale.y = 1;
       santa.y = -12;
       present.y = -35;
-
-      if (cursors.right.downDuration(10)) {
-        randomArrayItem(gameState.turnSounds).play();
-      }
     }
 
     if (spaceKey.downDuration(10)) {
@@ -300,12 +359,12 @@ var mainExports = (function() {
         gameState.player.delivered += 1;
         gameState.player.deliveredInARow += 1;
         house.delivered = true;
-        house.sprite.tint = 0x80ff80;
       } else {
         gameState.player.deliveredInARow = 0;
       }
 
-      console.log(gameState.player.deliveredInARow);
+      gameState.player.currentPresentImage = pickPresentColor();
+      present.loadTexture(gameState.player.currentPresentImage);
     }
 
     emitter.emitX = player.x;
