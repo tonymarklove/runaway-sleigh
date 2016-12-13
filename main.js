@@ -21,6 +21,7 @@ var mainExports = (function() {
   var gameState = {
     phaser: null,
     background: null,
+    groundGroup: null,
     houses: [],
     turnSounds: [],
     elaspedMs: 0,
@@ -208,6 +209,7 @@ var mainExports = (function() {
 
     present.sprite = gameState.phaser.add.sprite(currentPos.x, currentPos.y, gameState.player.currentPresentImage);
     present.sprite.anchor.setTo(0.5, 0.5);
+    gameState.groundGroup.add(present.sprite);
 
     gameState.phaser.add.tween(present.sprite).to({ x: targetPoint.x, y: targetPoint.y, angle: targetAngle }, time, Phaser.Easing.Linear.None, true, 0);
 
@@ -242,6 +244,8 @@ var mainExports = (function() {
   function create() {
     gameState.background = gameState.phaser.add.tileSprite(0, 0, 2160, 2160, 'background');
     gameState.phaser.world.setBounds(0, 0, 2160, 2160);
+
+    gameState.groundGroup = gameState.phaser.add.group();
 
     emitter = gameState.phaser.add.emitter(gameState.phaser.world.centerX, gameState.phaser.world.centerY, 400);
     emitter.makeParticles(['star_particle1', 'star_particle2']);
@@ -282,10 +286,11 @@ var mainExports = (function() {
     music = gameState.phaser.add.audio('jingle_bells', 0.25);
     gameState.turnSounds.push(gameState.phaser.add.audio('turn1'));
     gameState.turnSounds.push(gameState.phaser.add.audio('turn2'));
-    music.play();
+    // music.play();
 
     gameState.phaser.camera.roundPx = false;
-    gameState.phaser.camera.follow(player);
+    // gameState.phaser.camera.focusOn(player);
+    // gameState.phaser.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
   }
 
   function padLeft(nr, n, str){
@@ -315,6 +320,22 @@ var mainExports = (function() {
       position: house.chimney,
       angle: gameState.phaser.rnd.angle()
     };
+  }
+
+  function updateCamera() {
+    var targetPosition = player.position;
+    var lerp = 0.1;
+
+    gameState.phaser.camera.x = gameState.phaser.math.linear(
+      gameState.phaser.camera.x,
+      targetPosition.x - gameState.phaser.camera.view.halfWidth,
+      lerp
+    );
+    gameState.phaser.camera.y = gameState.phaser.math.linear(
+      gameState.phaser.camera.y,
+      targetPosition.y - gameState.phaser.camera.view.halfHeight,
+      lerp
+    );
   }
 
   function update() {
@@ -369,6 +390,10 @@ var mainExports = (function() {
 
     emitter.emitX = player.x;
     emitter.emitY = player.y;
+
+    if (gameState.player.delivered < 5) {
+      updateCamera();
+    }
 
     var elapsedSeconds = Math.floor(gameState.elaspedMs / 1000);
     var displayedMinutes = Math.floor(elapsedSeconds / 60);
