@@ -406,9 +406,11 @@ var mainExports = (function() {
     emitter.emitX = player.x;
     emitter.emitY = player.y;
 
-    // if (gameState.player.delivered < 5) {
+    if (gameState.player.delivered < 30) {
       updateCamera();
-    // }
+    } else {
+      player.body.collideWorldBounds = true;
+    }
 
     var elapsedSeconds = Math.floor(gameState.elaspedMs / 1000);
     var displayedMinutes = Math.floor(elapsedSeconds / 60);
