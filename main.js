@@ -45,70 +45,37 @@ var mainExports = (function() {
   var emitter = null;
   var presentEmitter = null;
 
-  var chimneyPositions = [
-    {x: 462,  y: 165},
-    {x: 1021, y: 130},
-    {x: 1946, y: 122},
-    {x: 181,  y: 551},
-    {x: 699,  y: 455},
-    {x: 893,  y: 430},
-    {x: 1111, y: 662},
-    {x: 1411, y: 315},
-    {x: 1976, y: 342},
-    {x: 1767, y: 496},
-    {x: 227,  y: 1288},
-    {x: 350,  y: 936},
-    {x: 629,  y: 1088},
-    {x: 1037, y: 1061},
-    {x: 1337, y: 698},
-    {x: 1345, y: 1073},
-    {x: 1703, y: 1180},
-    {x: 1841, y: 773},
-    {x: 1934, y: 835},
-    {x: 178,  y: 1993},
-    {x: 177,  y: 1548},
-    {x: 479,  y: 1437},
-    {x: 793,  y: 2032},
-    {x: 931,  y: 1577},
-    {x: 1096, y: 1453},
-    {x: 1195, y: 1832},
-    {x: 1479, y: 1592},
-    {x: 1439, y: 1937},
-    {x: 1885, y: 1901},
-    {x: 2054, y: 1473}
-  ];
-
-  var litHousePositions = [
-    {x: 460,  y: 223, frameName: "house01"},
-    {x: 982, y: 176, frameName: "house02"},
-    {x: 1984,  y: 161, frameName: "house04"},
-    {x: 189,  y: 490, frameName: "house05"},
-    {x: 734,  y: 503, frameName: "house06"},
-    {x: 949, y: 440, frameName: "house07"},
-    {x: 1054, y: 666, frameName: "house10"},
-    {x: 1463, y: 339, frameName: "house03"},
-    {x: 1983, y: 393, frameName: "house09"},
-    {x: 1806, y: 534, frameName: "house08"},
-    {x: 178, y: 1257, frameName: "house30"},
-    {x: 339, y: 882, frameName: "house14"},
-    {x: 640, y: 1033, frameName: "house15"},
-    {x: 1086, y: 1080, frameName: "house16"},
-    {x: 1376,  y: 737, frameName: "house11"},
-    {x: 1389, y: 1099, frameName: "house17"},
-    {x: 1752, y: 1147, frameName: "house18"},
-    {x: 1801,  y: 819, frameName: "house12"},
-    {x: 1991,  y: 807, frameName: "house13"},
-    {x: 224,  y: 1953, frameName: "house24"},
-    {x: 232, y: 1555, frameName: "house19"},
-    {x: 530,  y: 1415, frameName: "house20"},
-    {x: 746, y: 1997, frameName: "house25"},
-    {x: 894, y: 1631, frameName: "house26"},
-    {x: 1038,  y: 1445, frameName: "house21"},
-    {x: 1196, y: 1771, frameName: "house27"},
-    {x: 1472,  y: 1537, frameName: "house22"},
-    {x: 1488, y: 1911, frameName: "house28"},
-    {x: 1854, y: 1947, frameName: "house29"},
-    {x: 2000,  y: 1485, frameName: "house23"}
+  var houseData = [
+    { chimney: {x: 462,  y: 165}, litSpritePos: {x: 460,  y: 223}, frameName: "house01" },
+    { chimney: {x: 1021, y: 130}, litSpritePos: {x: 982, y: 176}, frameName: "house02" },
+    { chimney: {x: 1946, y: 122}, litSpritePos: {x: 1984,  y: 161}, frameName: "house04" },
+    { chimney: {x: 181,  y: 551}, litSpritePos: {x: 189,  y: 490}, frameName: "house05" },
+    { chimney: {x: 699,  y: 455}, litSpritePos: {x: 734,  y: 503}, frameName: "house06" },
+    { chimney: {x: 893,  y: 430}, litSpritePos: {x: 949, y: 440}, frameName: "house07" },
+    { chimney: {x: 1111, y: 662}, litSpritePos: {x: 1054, y: 666}, frameName: "house10" },
+    { chimney: {x: 1411, y: 315}, litSpritePos: {x: 1463, y: 339}, frameName: "house03" },
+    { chimney: {x: 1976, y: 342}, litSpritePos: {x: 1983, y: 393}, frameName: "house09" },
+    { chimney: {x: 1767, y: 496}, litSpritePos: {x: 1806, y: 534}, frameName: "house08" },
+    { chimney: {x: 227,  y: 1288}, litSpritePos: {x: 178, y: 1257}, frameName: "house30" },
+    { chimney: {x: 350,  y: 936}, litSpritePos: {x: 339, y: 882}, frameName: "house14" },
+    { chimney: {x: 629,  y: 1088}, litSpritePos: {x: 640, y: 1033}, frameName: "house15" },
+    { chimney: {x: 1037, y: 1061}, litSpritePos: {x: 1086, y: 1080}, frameName: "house16" },
+    { chimney: {x: 1337, y: 698}, litSpritePos: {x: 1376,  y: 737}, frameName: "house11" },
+    { chimney: {x: 1345, y: 1073}, litSpritePos: {x: 1389, y: 1099}, frameName: "house17" },
+    { chimney: {x: 1703, y: 1180}, litSpritePos: {x: 1752, y: 1147}, frameName: "house18" },
+    { chimney: {x: 1841, y: 773}, litSpritePos: {x: 1801,  y: 819}, frameName: "house12" },
+    { chimney: {x: 1934, y: 835}, litSpritePos: {x: 1991,  y: 807}, frameName: "house13" },
+    { chimney: {x: 178,  y: 1993}, litSpritePos: {x: 224,  y: 1953}, frameName: "house24" },
+    { chimney: {x: 177,  y: 1548}, litSpritePos: {x: 232, y: 1555}, frameName: "house19" },
+    { chimney: {x: 479,  y: 1437}, litSpritePos: {x: 530,  y: 1415}, frameName: "house20" },
+    { chimney: {x: 793,  y: 2032}, litSpritePos: {x: 746, y: 1997}, frameName: "house25" },
+    { chimney: {x: 931,  y: 1577}, litSpritePos: {x: 894, y: 1631}, frameName: "house26" },
+    { chimney: {x: 1096, y: 1453}, litSpritePos: {x: 1038,  y: 1445}, frameName: "house21" },
+    { chimney: {x: 1195, y: 1832}, litSpritePos: {x: 1196, y: 1771}, frameName: "house27" },
+    { chimney: {x: 1479, y: 1592}, litSpritePos: {x: 1472,  y: 1537}, frameName: "house22" },
+    { chimney: {x: 1439, y: 1937}, litSpritePos: {x: 1488, y: 1911}, frameName: "house28" },
+    { chimney: {x: 1885, y: 1901}, litSpritePos: {x: 1854, y: 1947}, frameName: "house29" },
+    { chimney: {x: 2054, y: 1473}, litSpritePos: {x: 2000,  y: 1485}, frameName: "house23" }
   ];
 
   function preload() {
@@ -209,13 +176,14 @@ var mainExports = (function() {
   }
 
   function createHouses() {
-    for (var i=0; i<chimneyPositions.length; i++) {
-      var chimney = chimneyPositions[i];
-      var litPosition = litHousePositions[i];
+    for (var i=0; i<houseData.length; i++) {
+      var houseDatum = houseData[i];
+      var chimney = houseDatum.chimney;
+      var litPosition = houseDatum.litSpritePos;
       var litSprite = gameState.phaser.add.sprite(litPosition.x,litPosition.y, 'lit_houses');
 
       litSprite.anchor.setTo(0.5, 0.5);
-      litSprite.frameName = litPosition.frameName;
+      litSprite.frameName = houseDatum.frameName;
       litSprite.visible = false;
 
       gameState.groundGroup.add(litSprite);
@@ -273,14 +241,6 @@ var mainExports = (function() {
     });
 
     return hitHouse;
-  }
-
-  function DEBUGcreatePresentsInChimneys() {
-    for (var i=0; i<chimneyPositions.length; i++) {
-      var chimney = chimneyPositions[i];
-      var sprite = gameState.phaser.add.sprite(chimney.x, chimney.y, pickPresentColor());
-      sprite.anchor.setTo(0.5, 0.5);
-    }
   }
 
   function create() {
@@ -356,8 +316,6 @@ var mainExports = (function() {
   }
 
   function chimneyForHouse(house) {
-    var chimneyPoint = new Phaser.Point(29, 78);
-
     return {
       position: house.chimney,
       angle: gameState.phaser.rnd.angle()
