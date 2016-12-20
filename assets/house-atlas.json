@@ -1,0 +1,224 @@
+{
+  "frames": {
+    "house01": {
+      "frame": {"x":0,"y":0,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house02": {
+      "frame": {"x":200,"y":0,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house03": {
+      "frame": {"x":400,"y":0,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house04": {
+      "frame": {"x":600,"y":0,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house05": {
+      "frame": {"x":800,"y":0,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house06": {
+      "frame": {"x":1000,"y":0,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+
+
+    "house07": {
+      "frame": {"x":0,"y":200,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house08": {
+      "frame": {"x":200,"y":200,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house09": {
+      "frame": {"x":400,"y":200,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house10": {
+      "frame": {"x":600,"y":200,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house11": {
+      "frame": {"x":800,"y":200,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house12": {
+      "frame": {"x":1000,"y":200,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+
+
+    "house13": {
+      "frame": {"x":0,"y":400,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house14": {
+      "frame": {"x":200,"y":400,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house15": {
+      "frame": {"x":400,"y":400,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house16": {
+      "frame": {"x":600,"y":400,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house17": {
+      "frame": {"x":800,"y":400,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house18": {
+      "frame": {"x":1000,"y":400,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+
+
+    "house19": {
+      "frame": {"x":0,"y":600,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house20": {
+      "frame": {"x":200,"y":600,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house21": {
+      "frame": {"x":400,"y":600,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house22": {
+      "frame": {"x":600,"y":600,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house23": {
+      "frame": {"x":800,"y":600,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house24": {
+      "frame": {"x":1000,"y":600,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+
+
+    "house25": {
+      "frame": {"x":0,"y":800,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house26": {
+      "frame": {"x":200,"y":800,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house27": {
+      "frame": {"x":400,"y":800,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house28": {
+      "frame": {"x":600,"y":800,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house29": {
+      "frame": {"x":800,"y":800,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    },
+    "house30": {
+      "frame": {"x":1000,"y":800,"w":200,"h":200},
+      "rotated": false,
+      "trimmed": true,
+      "spriteSourceSize": {"x":0,"y":0,"w":200,"h":200},
+      "sourceSize": {"w":200,"h":200}
+    }
+
+
+  }
+}
