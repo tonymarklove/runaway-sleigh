@@ -24,6 +24,7 @@ var mainExports = (function() {
     groundGroup: null,
     houses: [],
     turnSounds: [],
+    beepSounds: [],
     elaspedMs: 0,
     timerText: null,
     deliveredText: null,
@@ -99,6 +100,12 @@ var mainExports = (function() {
     gameState.phaser.load.audio('jingle_bells', ['assets/jingle-bells.mp3']);
     gameState.phaser.load.audio('turn1', ['assets/turn1.ogg']);
     gameState.phaser.load.audio('turn2', ['assets/turn2.ogg']);
+
+    gameState.phaser.load.audio('beep1', ['assets/beep1.mp3']);
+    gameState.phaser.load.audio('beep2', ['assets/beep2.mp3']);
+    gameState.phaser.load.audio('beep3', ['assets/beep3.mp3']);
+    gameState.phaser.load.audio('beep4', ['assets/beep4.mp3']);
+    gameState.phaser.load.audio('beep5', ['assets/beep5.mp3']);
   }
 
   function pickPresentColor() {
@@ -236,6 +243,8 @@ var mainExports = (function() {
       presentEmitter.start(true, 3000, null, 5);
 
       if (hitHouse) {
+        hitHouse.litSprite.visible = true;
+        gameState.beepSounds[Math.min(gameState.player.deliveredInARow - 1, 4)].play();
         present.sprite.destroy(present.sprite);
       }
     });
@@ -288,6 +297,12 @@ var mainExports = (function() {
     music = gameState.phaser.add.audio('jingle_bells', 0.25);
     gameState.turnSounds.push(gameState.phaser.add.audio('turn1'));
     gameState.turnSounds.push(gameState.phaser.add.audio('turn2'));
+
+    gameState.beepSounds.push(gameState.phaser.add.audio('beep1'));
+    gameState.beepSounds.push(gameState.phaser.add.audio('beep2'));
+    gameState.beepSounds.push(gameState.phaser.add.audio('beep3'));
+    gameState.beepSounds.push(gameState.phaser.add.audio('beep4'));
+    gameState.beepSounds.push(gameState.phaser.add.audio('beep5'));
     // music.play();
 
     gameState.phaser.camera.roundPx = false;
@@ -380,7 +395,6 @@ var mainExports = (function() {
         gameState.player.delivered += 1;
         gameState.player.deliveredInARow += 1;
         house.delivered = true;
-        house.litSprite.visible = true;
       } else {
         gameState.player.deliveredInARow = 0;
       }
