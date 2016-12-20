@@ -81,34 +81,34 @@ var mainExports = (function() {
   var litHousePositions = [
     {x: 460,  y: 223, frameName: "house01"},
     {x: 982, y: 176, frameName: "house02"},
-    {x: 1463, y: 339, frameName: "house03"},
     {x: 1984,  y: 161, frameName: "house04"},
     {x: 189,  y: 490, frameName: "house05"},
     {x: 734,  y: 503, frameName: "house06"},
     {x: 949, y: 440, frameName: "house07"},
-    {x: 1806, y: 534, frameName: "house08"},
-    {x: 1983, y: 393, frameName: "house09"},
     {x: 1054, y: 666, frameName: "house10"},
-    {x: 1376,  y: 737, frameName: "house11"},
-    {x: 1801,  y: 819, frameName: "house12"},
-    {x: 1991,  y: 807, frameName: "house13"},
+    {x: 1463, y: 339, frameName: "house03"},
+    {x: 1983, y: 393, frameName: "house09"},
+    {x: 1806, y: 534, frameName: "house08"},
+    {x: 178, y: 1257, frameName: "house30"},
     {x: 339, y: 882, frameName: "house14"},
     {x: 640, y: 1033, frameName: "house15"},
     {x: 1086, y: 1080, frameName: "house16"},
+    {x: 1376,  y: 737, frameName: "house11"},
     {x: 1389, y: 1099, frameName: "house17"},
     {x: 1752, y: 1147, frameName: "house18"},
+    {x: 1801,  y: 819, frameName: "house12"},
+    {x: 1991,  y: 807, frameName: "house13"},
+    {x: 224,  y: 1953, frameName: "house24"},
     {x: 232, y: 1555, frameName: "house19"},
     {x: 530,  y: 1415, frameName: "house20"},
-    {x: 1038,  y: 1445, frameName: "house21"},
-    {x: 1472,  y: 1537, frameName: "house22"},
-    {x: 2000,  y: 1485, frameName: "house23"},
-    {x: 224,  y: 1953, frameName: "house24"},
     {x: 746, y: 1997, frameName: "house25"},
     {x: 894, y: 1631, frameName: "house26"},
+    {x: 1038,  y: 1445, frameName: "house21"},
     {x: 1196, y: 1771, frameName: "house27"},
+    {x: 1472,  y: 1537, frameName: "house22"},
     {x: 1488, y: 1911, frameName: "house28"},
     {x: 1854, y: 1947, frameName: "house29"},
-    {x: 2054, y: 1473, frameName: "house30"}
+    {x: 2000,  y: 1485, frameName: "house23"}
   ];
 
   function preload() {
@@ -211,9 +211,18 @@ var mainExports = (function() {
   function createHouses() {
     for (var i=0; i<chimneyPositions.length; i++) {
       var chimney = chimneyPositions[i];
+      var litPosition = litHousePositions[i];
+      var litSprite = gameState.phaser.add.sprite(litPosition.x,litPosition.y, 'lit_houses');
+
+      litSprite.anchor.setTo(0.5, 0.5);
+      litSprite.frameName = litPosition.frameName;
+      litSprite.visible = false;
+
+      gameState.groundGroup.add(litSprite);
 
       gameState.houses.push({
-        chimney:  new Phaser.Point(chimney.x, chimney.y),
+        chimney: new Phaser.Point(chimney.x, chimney.y),
+        litSprite: litSprite,
         delivered: false
       });
     }
@@ -413,6 +422,7 @@ var mainExports = (function() {
         gameState.player.delivered += 1;
         gameState.player.deliveredInARow += 1;
         house.delivered = true;
+        house.litSprite.visible = true;
       } else {
         gameState.player.deliveredInARow = 0;
       }
@@ -424,9 +434,9 @@ var mainExports = (function() {
     emitter.emitX = player.x;
     emitter.emitY = player.y;
 
-    if (gameState.player.delivered < 5) {
+    // if (gameState.player.delivered < 5) {
       updateCamera();
-    }
+    // }
 
     var elapsedSeconds = Math.floor(gameState.elaspedMs / 1000);
     var displayedMinutes = Math.floor(elapsedSeconds / 60);
