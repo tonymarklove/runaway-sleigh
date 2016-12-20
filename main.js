@@ -98,8 +98,8 @@ var mainExports = (function() {
     gameState.phaser.load.image('star_particle2','assets/star_particle.png');
 
     gameState.phaser.load.audio('jingle_bells', ['assets/jingle-bells.mp3']);
-    gameState.phaser.load.audio('turn1', ['assets/turn1.ogg']);
-    gameState.phaser.load.audio('turn2', ['assets/turn2.ogg']);
+    gameState.phaser.load.audio('turn1', ['assets/turn1.mp3']);
+    gameState.phaser.load.audio('turn2', ['assets/turn2.mp3']);
 
     gameState.phaser.load.audio('beep1', ['assets/beep1.mp3']);
     gameState.phaser.load.audio('beep2', ['assets/beep2.mp3']);
