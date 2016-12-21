@@ -27,7 +27,7 @@ var mainExports = (function() {
     turnSounds: [],
     beepSounds: [],
     screenOverlay: null,
-    elaspedMs: 0,
+    elapsedMs: 0,
     timerText: null,
     deliveredText: null,
     player: {
@@ -80,6 +80,8 @@ var mainExports = (function() {
     { chimney: {x: 1885, y: 1901}, litSpritePos: {x: 1854, y: 1947}, frameName: "house29" },
     { chimney: {x: 2054, y: 1473}, litSpritePos: {x: 2000,  y: 1485}, frameName: "house23" }
   ];
+
+  var HOUSE_COUNT = houseData.length;
 
   function preload() {
     gameState.phaser.load.script('webfont', '//ajax.googleapis.com/ajax/libs/webfont/1.4.7/webfont.js');
@@ -193,7 +195,7 @@ var mainExports = (function() {
   }
 
   function actionOnClickPlayAgain() {
-    console.log("click");
+    window.location.reload();
   }
 
   function createScoreboardText(topFiveTimes) {
@@ -221,6 +223,28 @@ var mainExports = (function() {
     var button = gameState.phaser.add.button(SCREEN_WIDTH / 2, 520, 'play_again_button', actionOnClickPlayAgain, this, 2, 1, 0);
     button.anchor.setTo(0.5, 0);
     button.fixedToCamera = true;
+  }
+
+  function createScoreboard() {
+    gameState.screenOverlay = gameState.phaser.add.tileSprite(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, 'overlay');
+    gameState.screenOverlay.fixedToCamera = true;
+    gameState.screenOverlay.alpha = 0.7;
+
+    var logo = gameState.phaser.add.sprite(SCREEN_WIDTH / 2, 40, 'logo');
+    logo.anchor.setTo(0.5, 0);
+    logo.scale.setTo(0.75);
+
+    gameState.overlayGroup = gameState.phaser.add.group();
+    gameState.overlayGroup.fixedToCamera = true;
+    gameState.overlayGroup.add(logo);
+
+    var scores = getScoreboardScores();
+
+    var scoreTexts = scores.map(function(score) {
+      return createTimeText(score);
+    });
+
+    createScoreboardText(scoreTexts);
   }
 
   function createHouses() {
@@ -335,21 +359,6 @@ var mainExports = (function() {
     createTimer();
     createDeliveredUi();
 
-    gameState.screenOverlay = gameState.phaser.add.tileSprite(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, 'overlay');
-    gameState.screenOverlay.fixedToCamera = true;
-    gameState.screenOverlay.alpha = 0.7;
-
-    var logo = gameState.phaser.add.sprite(SCREEN_WIDTH / 2, 40, 'logo');
-    logo.anchor.setTo(0.5, 0);
-    logo.scale.setTo(0.75);
-    // gameState.screenOverlay.addChild(logo);
-
-    gameState.overlayGroup = gameState.phaser.add.group();
-    gameState.overlayGroup.fixedToCamera = true;
-    gameState.overlayGroup.add(logo);
-
-    createScoreboardText(["0:35","1:56","0:35","0:35","0:35"]);
-
     cursors = gameState.phaser.input.keyboard.createCursorKeys();
     spaceKey = gameState.phaser.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
@@ -362,7 +371,7 @@ var mainExports = (function() {
     gameState.beepSounds.push(gameState.phaser.add.audio('beep3'));
     gameState.beepSounds.push(gameState.phaser.add.audio('beep4'));
     gameState.beepSounds.push(gameState.phaser.add.audio('beep5'));
-    // music.play();
+    music.play();
 
     gameState.phaser.camera.roundPx = false;
   }
@@ -410,72 +419,99 @@ var mainExports = (function() {
     );
   }
 
+  function sortNumber(a,b) {
+    return a - b;
+  }
+
+  function getScoreboardScores() {
+    return JSON.parse(localStorage.getItem('top_scores')) || [];
+  }
+
+  function updateScoreboardScores(ms) {
+    var currentScores = getScoreboardScores();
+    currentScores.push(ms);
+    currentScores.sort(sortNumber);
+    currentScores = currentScores.slice(0,5);
+    localStorage.setItem('top_scores', JSON.stringify(currentScores));
+  }
+
+  function onLevelComplete() {
+    player.body.collideWorldBounds = false;
+    updateScoreboardScores(gameState.elapsedMs);
+    createScoreboard();
+  }
+
+  function createTimeText(ms) {
+    var elapsedSeconds = Math.floor(ms / 1000);
+    var displayedMinutes = Math.floor(elapsedSeconds / 60);
+    var displayedSeconds = Math.floor(elapsedSeconds % 60);
+    return displayedMinutes + " : " + padLeft(displayedSeconds, 2)
+  }
+
   function update() {
-    gameState.elaspedMs += gameState.phaser.time.physicsElapsedMS;
+    gameState.elapsedMs += gameState.phaser.time.physicsElapsedMS;
 
-    var angle = player.body.rotation;
-
-    var playerSpeed = PLAYER_SPEED + (20 * gameState.player.deliveredInARow);
     var turnRate = TURN_RATE + (0.1 * gameState.player.deliveredInARow);
 
-    var dx = playerSpeed * Math.cos(angle * Math.PI / 180);
-    var dy = playerSpeed * Math.sin(angle * Math.PI / 180);
+    if (gameState.player.delivered < HOUSE_COUNT) {
+      if (cursors.left.isDown) {
+        if (cursors.left.downDuration(10) && gameState.player.turnDirection != "left") {
+          randomArrayItem(gameState.turnSounds).play();
+        }
 
-    player.body.velocity = new Phaser.Point(dx, dy);
+        gameState.player.turnDirection = "left";
+        player.body.rotation = player.body.rotation - turnRate;
+        santa.scale.y = -1;
+        santa.y = 12;
+        present.y = 35;
+      }
+      else if (cursors.right.isDown) {
+        if (cursors.right.downDuration(10) && gameState.player.turnDirection != "right") {
+          randomArrayItem(gameState.turnSounds).play();
+        }
 
-    if (cursors.left.isDown) {
-      if (cursors.left.downDuration(10) && gameState.player.turnDirection != "left") {
-        randomArrayItem(gameState.turnSounds).play();
+        gameState.player.turnDirection = "right";
+        player.body.rotation = player.body.rotation + turnRate;
+        santa.scale.y = 1;
+        santa.y = -12;
+        present.y = -35;
       }
 
-      gameState.player.turnDirection = "left";
-      player.body.rotation = player.body.rotation - turnRate;
-      santa.scale.y = -1;
-      santa.y = 12;
-      present.y = 35;
-    }
-    else if (cursors.right.isDown) {
-      if (cursors.right.downDuration(10) && gameState.player.turnDirection != "right") {
-        randomArrayItem(gameState.turnSounds).play();
+      if (spaceKey.downDuration(10)) {
+        var house = createInFlightPresent(new Phaser.Point(present.world.x, present.world.y), player.body.velocity.clone());
+        if (house) {
+          gameState.player.delivered += 1;
+          gameState.player.deliveredInARow += 1;
+          house.delivered = true;
+        } else {
+          gameState.player.deliveredInARow = 0;
+        }
+
+        if (gameState.player.delivered == HOUSE_COUNT) {
+          onLevelComplete();
+        }
+
+        gameState.player.currentPresentImage = pickPresentColor();
+        present.loadTexture(gameState.player.currentPresentImage);
       }
 
-      gameState.player.turnDirection = "right";
-      player.body.rotation = player.body.rotation + turnRate;
-      santa.scale.y = 1;
-      santa.y = -12;
-      present.y = -35;
-    }
+      var angle = player.body.rotation;
 
-    if (spaceKey.downDuration(10)) {
-      var house = createInFlightPresent(new Phaser.Point(present.world.x, present.world.y), player.body.velocity.clone());
-      if (house) {
-        gameState.player.delivered += 1;
-        gameState.player.deliveredInARow += 1;
-        house.delivered = true;
-      } else {
-        gameState.player.deliveredInARow = 0;
-      }
+      var playerSpeed = PLAYER_SPEED + (20 * gameState.player.deliveredInARow);
 
-      gameState.player.currentPresentImage = pickPresentColor();
-      present.loadTexture(gameState.player.currentPresentImage);
+      var dx = playerSpeed * Math.cos(angle * Math.PI / 180);
+      var dy = playerSpeed * Math.sin(angle * Math.PI / 180);
+
+      player.body.velocity = new Phaser.Point(dx, dy);
+
+      updateCamera();
+
+      gameState.timerText.text = createTimeText(gameState.elapsedMs);
+      gameState.deliveredText.text = String(gameState.player.delivered) + " / " + HOUSE_COUNT;
     }
 
     emitter.emitX = player.x;
     emitter.emitY = player.y;
-
-    if (gameState.player.delivered < 30) {
-      updateCamera();
-    } else {
-      player.body.collideWorldBounds = true;
-    }
-
-    var elapsedSeconds = Math.floor(gameState.elaspedMs / 1000);
-    var displayedMinutes = Math.floor(elapsedSeconds / 60);
-    var displayedSeconds = Math.floor(elapsedSeconds % 60);
-
-    gameState.timerText.text = displayedMinutes + " : " + padLeft(displayedSeconds, 2);
-
-    gameState.deliveredText.text = String(gameState.player.delivered) + " / 30";
   }
 
   function main() {
