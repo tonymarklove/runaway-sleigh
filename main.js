@@ -22,9 +22,11 @@ var mainExports = (function() {
     phaser: null,
     background: null,
     groundGroup: null,
+    overlayGroup: null,
     houses: [],
     turnSounds: [],
     beepSounds: [],
+    screenOverlay: null,
     elaspedMs: 0,
     timerText: null,
     deliveredText: null,
@@ -87,6 +89,9 @@ var mainExports = (function() {
     gameState.phaser.load.image('player','assets/ship.png');
     gameState.phaser.load.image('santa','assets/santa.png');
     gameState.phaser.load.image('clock','assets/clock.png');
+    gameState.phaser.load.image('overlay','assets/overlay.png');
+    gameState.phaser.load.image('logo','assets/logo.png');
+    gameState.phaser.load.spritesheet('play_again_button','assets/play-again.png', 202, 50);
 
     gameState.phaser.load.image('present_blue','assets/present-blue.png');
     gameState.phaser.load.image('present_green','assets/present-green.png');
@@ -151,14 +156,14 @@ var mainExports = (function() {
     gameState.timerText = text;
   }
 
-  function createDeliveredUi() {
-    var text = gameState.phaser.add.text(0, 0, "0");
+  function createBlueText(text, x, y) {
+    var text = gameState.phaser.add.text(0, 0, text);
     text.anchor.setTo(0.5);
 
     text.font = 'Fontdiner Swanky';
     text.fontSize = 50;
     text.fixedToCamera = true;
-    text.cameraOffset.setTo(SCREEN_WIDTH - 100, 50);
+    text.cameraOffset.setTo(x, y);
 
     //  If we don't set the padding the font gets cut off
     //  Comment out the line below to see the effect
@@ -172,6 +177,11 @@ var mainExports = (function() {
     text.stroke = '#000000';
     text.strokeThickness = 2;
     text.setShadow(5, 5, 'rgba(0,0,0,0.5)', 5);
+    return text;
+  }
+
+  function createDeliveredUi() {
+    var text = createBlueText("0", SCREEN_WIDTH - 100, 50);
 
     var clock = gameState.phaser.add.sprite(0,0, pickPresentColor());
     clock.anchor.setTo(0.5);
@@ -180,6 +190,37 @@ var mainExports = (function() {
     clock.scale.setTo(1.5);
 
     gameState.deliveredText = text;
+  }
+
+  function actionOnClickPlayAgain() {
+    console.log("click");
+  }
+
+  function createScoreboardText(topFiveTimes) {
+    var text = createBlueText("Best scores", SCREEN_WIDTH / 2, 200);
+
+    for (var i = topFiveTimes.length - 1; i >= 0; i--) {
+      var topTime = topFiveTimes[i];
+      var y = 250 + (i * 50);
+      var text = gameState.phaser.add.text(SCREEN_WIDTH / 2, y, topTime);
+      text.anchor.setTo(0.5, 0);
+      // text.font = 'Fontdiner Swanky';
+      text.fontSize = 40;
+      text.fixedToCamera = true;
+
+      //  If we don't set the padding the font gets cut off
+      //  Comment out the line below to see the effect
+      text.padding.set(17, 16);
+
+      text.fill = '#ffffff';
+      text.stroke = '#000000';
+      text.strokeThickness = 2;
+      text.setShadow(5, 5, 'rgba(0,0,0,0.5)', 5);
+    }
+
+    var button = gameState.phaser.add.button(SCREEN_WIDTH / 2, 520, 'play_again_button', actionOnClickPlayAgain, this, 2, 1, 0);
+    button.anchor.setTo(0.5, 0);
+    button.fixedToCamera = true;
   }
 
   function createHouses() {
@@ -237,6 +278,9 @@ var mainExports = (function() {
 
     scale1.start();
 
+    // Save current sound to play, which can change before the callback runs.
+    var beepSoundToPlay = Math.min(gameState.player.deliveredInARow, 4);
+
     scale2.onComplete.add(function() {
       presentEmitter.emitX = targetPoint.x;
       presentEmitter.emitY = targetPoint.y;
@@ -244,7 +288,7 @@ var mainExports = (function() {
 
       if (hitHouse) {
         hitHouse.litSprite.visible = true;
-        gameState.beepSounds[Math.min(gameState.player.deliveredInARow - 1, 4)].play();
+        gameState.beepSounds[beepSoundToPlay].play();
         present.sprite.destroy(present.sprite);
       }
     });
@@ -291,6 +335,21 @@ var mainExports = (function() {
     createTimer();
     createDeliveredUi();
 
+    gameState.screenOverlay = gameState.phaser.add.tileSprite(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, 'overlay');
+    gameState.screenOverlay.fixedToCamera = true;
+    gameState.screenOverlay.alpha = 0.7;
+
+    var logo = gameState.phaser.add.sprite(SCREEN_WIDTH / 2, 40, 'logo');
+    logo.anchor.setTo(0.5, 0);
+    logo.scale.setTo(0.75);
+    // gameState.screenOverlay.addChild(logo);
+
+    gameState.overlayGroup = gameState.phaser.add.group();
+    gameState.overlayGroup.fixedToCamera = true;
+    gameState.overlayGroup.add(logo);
+
+    createScoreboardText(["0:35","1:56","0:35","0:35","0:35"]);
+
     cursors = gameState.phaser.input.keyboard.createCursorKeys();
     spaceKey = gameState.phaser.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
 
@@ -306,8 +365,6 @@ var mainExports = (function() {
     // music.play();
 
     gameState.phaser.camera.roundPx = false;
-    // gameState.phaser.camera.focusOn(player);
-    // gameState.phaser.camera.follow(player, Phaser.Camera.FOLLOW_LOCKON, 0.1, 0.1);
   }
 
   function padLeft(nr, n, str){
@@ -421,13 +478,8 @@ var mainExports = (function() {
     gameState.deliveredText.text = String(gameState.player.delivered) + " / 30";
   }
 
-  function render() {
-    // gameState.phaser.debug.cameraInfo(gameState.phaser.camera, 32, 32);
-    // gameState.phaser.debug.spriteCoords(player, 32, 500);
-  }
-
   function main() {
-    var phaserFunctions = { preload: preload, create: create, update: update, render: render };
+    var phaserFunctions = { preload: preload, create: create, update: update };
 
     gameState.phaser = new Phaser.Game(
       SCREEN_WIDTH,
