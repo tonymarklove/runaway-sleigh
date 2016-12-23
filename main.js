@@ -199,7 +199,7 @@ var mainExports = (function() {
   }
 
   function createScoreboardText(topFiveTimes) {
-    var text = createBlueText("Best scores", SCREEN_WIDTH / 2, 200);
+    var text = createBlueText("Best times", SCREEN_WIDTH / 2, 200);
 
     for (var i = topFiveTimes.length - 1; i >= 0; i--) {
       var topTime = topFiveTimes[i];
@@ -404,8 +404,16 @@ var mainExports = (function() {
   }
 
   function updateCamera() {
-    var targetPosition = player.position;
-    var lerp = 0.1;
+    var distanceInFront = 200;
+    var currentPos = player.body.position.clone();
+    var velocity = player.body.velocity.clone();
+    var direction = Phaser.Point.normalize(velocity);
+    direction.multiply(distanceInFront, distanceInFront);
+    // direction.add(velocity.x, velocity.y);
+
+    var targetPosition = Phaser.Point.add(currentPos, direction);
+
+    var lerp = 0.5;
 
     gameState.phaser.camera.x = gameState.phaser.math.linear(
       gameState.phaser.camera.x,
