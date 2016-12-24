@@ -321,6 +321,7 @@ var mainExports = (function() {
   }
 
   function create() {
+    gameState.phaser.scale.fullScreenScaleMode = Phaser.ScaleManager.SHOW_ALL;
     gameState.background = gameState.phaser.add.tileSprite(0, 0, 2160, 2160, 'background');
     gameState.phaser.world.setBounds(0, 0, 2160, 2160);
 
@@ -534,8 +535,17 @@ var mainExports = (function() {
     );
   }
 
+  function toggleFullscreen() {
+    if (gameState.phaser.scale.isFullScreen) {
+      gameState.phaser.scale.stopFullScreen();
+    } else {
+      gameState.phaser.scale.startFullScreen(false);
+    }
+  }
+
   return {
-    main: main
+    main: main,
+    toggleFullscreen: toggleFullscreen
   };
 })();
 
