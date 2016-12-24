@@ -388,7 +388,7 @@ var mainExports = (function() {
     for (var i=0; i<gameState.houses.length; i++) {
       var house = gameState.houses[i];
 
-      if (!house.delivered && house.chimney.distance(position, true) < 100) {
+      if (!house.delivered && house.chimney.distance(position, true) < 150) {
         return house;
       }
     }
