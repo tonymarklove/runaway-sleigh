@@ -198,13 +198,14 @@ var mainExports = (function() {
     window.location.reload();
   }
 
-  function createScoreboardText(topFiveTimes) {
+  function createScoreboardText(timeForThisGame, topFiveTimes) {
     var text = createBlueText("Best times", SCREEN_WIDTH / 2, 200);
 
     for (var i = topFiveTimes.length - 1; i >= 0; i--) {
       var topTime = topFiveTimes[i];
+      var topTimeText = createTimeText(topTime);
       var y = 250 + (i * 50);
-      var text = gameState.phaser.add.text(SCREEN_WIDTH / 2, y, topTime);
+      var text = gameState.phaser.add.text(SCREEN_WIDTH / 2, y, topTimeText);
       text.anchor.setTo(0.5, 0);
       // text.font = 'Fontdiner Swanky';
       text.fontSize = 40;
@@ -214,7 +215,11 @@ var mainExports = (function() {
       //  Comment out the line below to see the effect
       text.padding.set(17, 16);
 
-      text.fill = '#ffffff';
+      if (topTime == timeForThisGame) {
+        text.fill = '#ff0000';
+      } else {
+        text.fill = '#ffffff';
+      }
       text.stroke = '#000000';
       text.strokeThickness = 2;
       text.setShadow(5, 5, 'rgba(0,0,0,0.5)', 5);
@@ -225,7 +230,7 @@ var mainExports = (function() {
     button.fixedToCamera = true;
   }
 
-  function createScoreboard() {
+  function createScoreboard(timeForThisGame) {
     gameState.screenOverlay = gameState.phaser.add.tileSprite(0,0, SCREEN_WIDTH, SCREEN_HEIGHT, 'overlay');
     gameState.screenOverlay.fixedToCamera = true;
     gameState.screenOverlay.alpha = 0.7;
@@ -240,11 +245,7 @@ var mainExports = (function() {
 
     var scores = getScoreboardScores();
 
-    var scoreTexts = scores.map(function(score) {
-      return createTimeText(score);
-    });
-
-    createScoreboardText(scoreTexts);
+    createScoreboardText(timeForThisGame, scores);
   }
 
   function createHouses() {
@@ -446,7 +447,7 @@ var mainExports = (function() {
   function onLevelComplete() {
     player.body.collideWorldBounds = false;
     updateScoreboardScores(gameState.elapsedMs);
-    createScoreboard();
+    createScoreboard(gameState.elapsedMs);
   }
 
   function createTimeText(ms) {
