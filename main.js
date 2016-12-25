@@ -337,7 +337,8 @@ var mainExports = (function() {
 
     presentEmitter = gameState.phaser.add.emitter(gameState.phaser.world.centerX, gameState.phaser.world.centerY, 400);
     presentEmitter.makeParticles(['present_blue', 'present_green', 'present_purple', 'present_red', 'present_yellow']);
-    presentEmitter.setAlpha(1, 0, 3000); presentEmitter.setScale(1.5, 0, 0.8, 0, 3000);
+    presentEmitter.setAlpha(1, 0, 3000);
+    presentEmitter.setScale(1.5, 0, 0.8, 0, 3000);
 
     gameState.phaser.physics.startSystem(Phaser.Physics.ARCADE);
 
@@ -405,16 +406,15 @@ var mainExports = (function() {
   }
 
   function updateCamera() {
-    var distanceInFront = 200;
-    var currentPos = player.body.position.clone();
+    var distanceInFront = 300;
+    var currentPos = player.position.clone();
     var velocity = player.body.velocity.clone();
     var direction = Phaser.Point.normalize(velocity);
     direction.multiply(distanceInFront, distanceInFront);
-    // direction.add(velocity.x, velocity.y);
 
     var targetPosition = Phaser.Point.add(currentPos, direction);
 
-    var lerp = 0.5;
+    var lerp = 0.05;
 
     gameState.phaser.camera.x = gameState.phaser.math.linear(
       gameState.phaser.camera.x,
