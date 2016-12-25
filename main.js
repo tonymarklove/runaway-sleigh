@@ -185,11 +185,11 @@ var mainExports = (function() {
   function createDeliveredUi() {
     var text = createBlueText("0", SCREEN_WIDTH - 100, 50);
 
-    var clock = gameState.phaser.add.sprite(0,0, pickPresentColor());
-    clock.anchor.setTo(0.5);
-    clock.fixedToCamera = true;
-    clock.cameraOffset.setTo(SCREEN_WIDTH - 230, 45);
-    clock.scale.setTo(1.5);
+    var presentIcon = gameState.phaser.add.sprite(0,0, pickPresentColor());
+    presentIcon.anchor.setTo(0.5);
+    presentIcon.fixedToCamera = true;
+    presentIcon.cameraOffset.setTo(SCREEN_WIDTH - 230, 45);
+    presentIcon.scale.setTo(1.5);
 
     gameState.deliveredText = text;
   }
